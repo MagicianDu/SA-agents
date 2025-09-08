@@ -53,3 +53,7 @@ arch_agents_demo/
 
 ## ✅ 执行检查
 对照根目录的 `CHECKLIST.md` 逐项勾选，确保产出完整且可用。
+
+---
+
+附注：本项目也称 “SA-agents” —— 4SA + 2 Critics 组建的架构师工作流。
