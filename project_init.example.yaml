@@ -1,0 +1,26 @@
+PROJECT_NAME: "动态定价 Copilot"
+OBJECTIVES: |
+  通过智能化定价提升网络收益 5-8%，并保障关键航线价格弹性与客座率目标。
+SUCCESS_METRICS: |
+  - 收益提升: +6%（对照季度）
+  - 客座率: 目标 85%+，关键航线 P95 >= 88%
+  - 用户体验: 查询延迟 P99 <= 300ms
+SCENARIOS: |
+  - 高峰期加班航班、铁路提速引起的跨模态竞争冲击
+  - 新品促销与汇率波动
+CONSTRAINTS: |
+  - 预算上限：每月 12,000 USD 云资源
+  - 上线窗口：T+90 天
+STAKEHOLDERS: |
+  - 收益管理部、网络规划部、IT 运控、合规/法务
+COMPLIANCE: |
+  - GDPR/CCPA、国内隐私合规、审计可追溯
+NFR_TARGETS: |
+  availability: 99.95
+  latency_p99_ms: 300
+  rto_minutes: 30
+  rpo_minutes: 5
+TECH_PREFS: |
+  - 云原生、事件驱动、可观测性内建
+PRIORS: |
+  - 既有订单中心与库存系统；既有定价规则引擎

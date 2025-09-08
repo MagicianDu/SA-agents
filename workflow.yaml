@@ -1,0 +1,98 @@
+version: "1.0"
+out_dir: "out"
+
+tasks:
+  - id: G0_CHARter
+    agent: ORC
+    prompt: "prompts/ORC.xml"
+    inputs:
+      - init: "project_init.yaml"
+    outputs:
+      - "project_charter.md"
+      - "solution_arch.md"
+      - "interface_freeze.md"
+      - "risk_register.md"
+      - "ADRs/0001-interface-freeze.md"
+
+  - id: SBD_CORE
+    depends_on: [G0_CHARter]
+    agent: SBD
+    prompt: "prompts/SBD.xml"
+    inputs:
+      - "out/G0_CHARter/project_charter.md"
+    outputs:
+      - "capability_map.yaml"
+      - "domain_model.yaml"
+      - "glossary.md"
+      - "openapi.yaml"
+      - "asyncapi.yaml"
+      - "data_contracts/core.yaml"
+      - "context_diagram.mmd"
+
+  - id: PNF_CORE
+    depends_on: [G0_CHARter]
+    agent: PNF
+    prompt: "prompts/PNF.xml"
+    inputs:
+      - "out/G0_CHARter/project_charter.md"
+    outputs:
+      - "nfr.yaml"
+      - "platform_blueprint.md"
+      - "slo_sli.yaml"
+      - "security_controls.md"
+      - "finops.md"
+      - "deploy_topology.mmd"
+
+  - id: G1_SECURITY
+    depends_on: [SBD_CORE, PNF_CORE]
+    agent: CRITIC_SECURITY
+    prompt: "prompts/CRITIC_SECURITY.xml"
+    inputs:
+      - "out/PNF_CORE/nfr.yaml"
+      - "out/PNF_CORE/security_controls.md"
+      - "out/SBD_CORE/data_contracts/core.yaml"
+      - "out/SBD_CORE/openapi.yaml"
+      - "out/SBD_CORE/asyncapi.yaml"
+    gate: true
+    outputs:
+      - "gates/G1_security_report.xml"
+
+  - id: G1_COSTPERF
+    depends_on: [PNF_CORE]
+    agent: CRITIC_COST
+    prompt: "prompts/CRITIC_COST.xml"
+    inputs:
+      - "out/PNF_CORE/nfr.yaml"
+      - "out/PNF_CORE/slo_sli.yaml"
+      - "out/PNF_CORE/finops.md"
+      - "out/PNF_CORE/platform_blueprint.md"
+    gate: true
+    outputs:
+      - "gates/G1_costperf_report.xml"
+
+  - id: ORC_FREEZE
+    depends_on: [SBD_CORE, PNF_CORE, G1_SECURITY, G1_COSTPERF]
+    agent: ORC
+    prompt: "prompts/ORC.xml"
+    inputs:
+      - "out/SBD_CORE/openapi.yaml"
+      - "out/SBD_CORE/asyncapi.yaml"
+      - "out/SBD_CORE/data_contracts/core.yaml"
+      - "out/PNF_CORE/nfr.yaml"
+    outputs:
+      - "interface_freeze.md"
+      - "ADRs/0001-interface-freeze.md"
+
+  - id: SWA_SKELETON
+    depends_on: [ORC_FREEZE]
+    agent: SWA
+    prompt: "prompts/SWA.xml"
+    inputs:
+      - "out/ORC_FREEZE/interface_freeze.md"
+      - "out/SBD_CORE/openapi.yaml"
+      - "out/SBD_CORE/asyncapi.yaml"
+    outputs:
+      - "code_skeleton/"
+      - "module_interfaces.md"
+      - "contract_tests/"
+      - "observability_hooks.md"
